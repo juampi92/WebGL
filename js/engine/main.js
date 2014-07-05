@@ -2,22 +2,32 @@ define(['glMatrix'],
 function (glMatrix) {
 
   var GL_engine = {
+
     gl: null,
+
+    glMatrix: glMatrix,
+
     init: function( canvas , width , height ){
       if ( width && height ){
         canvas.width = width;
         canvas.height = height;
       }
 
-      try {
-        this.gl = canvas.getContext('webgl');
-        this.gl.viewportWidth = canvas.width;
-        this.gl.viewportHeight = canvas.height;
-      } catch(e) { console.log(e); }
-      
+      var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+      for (var i = 0; i < names.length; ++i) {
+        try {
+          this.gl = canvas.getContext(names[i]);
+          this.gl.viewportWidth = canvas.width;
+          this.gl.viewportHeight = canvas.height;
+        } catch(e) {}
+        if (this.gl) {
+          break;
+        }
+      }
       if (!this.gl)
         throw "Could not initialise WebGL";
     },
+
     extend: function(module){
       // Mixin
       if ( typeof module === 'string' )

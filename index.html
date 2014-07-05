@@ -3,196 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>01</title>
+  <title>WebGL engine</title>
 </head>
 <body>
   
   <canvas id="canvas"></canvas>
 
-  <!--<script src="js/engine/config.js"></script>
+  <script src="js/engine/config.js"></script>
   <script src="js/lib/require.js"></script>
   <script type="text/javascript">
     GL_loader({
-      modules: [ 'testmodule' ],
-      shaders: []
+      app: [],
+      modules: [ 'models', 'animation', 'shaders', 'camera', 'scene' ],
+      shaders: [ 'shader-fs' , 'shader-vs' ]
     },
     function (GL){
 
       GL.init( document.getElementById('canvas') , 800 , 600 );
-      GL.extend('testmodule');
 
-      console.log(GL);
+      GL.extend('models');
+      GL.extend('animation');
+      GL.extend('shaders');
+      GL.extend('scene');
+      GL.extend('camera');
+
+      var camera = new GL.Camera(GL,45),
+        scene = new GL.Scene(GL);
+
+      scene.setCamera(camera);
+
+      var triangulo = new GL.Model(),
+        polygon = new GL.Polygon();
+
+      polygon.addVertex(new GL.Vertex(0.0,1.0,0.0));
+      polygon.addVertex(new GL.Vertex(-1.0,-1.0,0.0));
+      polygon.addVertex(new GL.Vertex(1.0,-1.0,0.0));
+
+      triangulo.addPolygon(polygon);
+      triangulo.setPos([-1.5, 0.0, -7.0]);
+
+      function start(){
+        GL.shaders.initialize(GL,['shader-fs','shader-vs'],['uPMatrix','uMVMatrix']);
+        scene.addModel(triangulo);
+
+        // WTf is this
+        GL.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        GL.gl.enable(GL.gl.DEPTH_TEST);
+
+        camera.calculate(0.1,100.0);
+
+        scene.draw();
+      }
+      start();
       
     });
-  </script>-->
-
-  <script id="shader-fs" type="x-shader/x-fragment">
-    precision mediump float;
-
-    void main(void) {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    }
   </script>
-
-  <script id="shader-vs" type="x-shader/x-vertex">
-    attribute vec3 aVertexPosition;
-
-    uniform mat4 uMVMatrix;
-    uniform mat4 uPMatrix;
-
-    void main(void) {
-      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-    }
-  </script>
-
-  <script src="js/lib/gl-matrix-min.js"></script>
-  <script>
-  var canvas = document.getElementById('canvas');
-  canvas.width = 800;canvas.height = 600;
-
-  var triangleVertexPositionBuffer,
-    squareVertexPositionBuffer,
-    gl,
-    mvMatrix = mat4.create(),
-    pMatrix = mat4.create(),
-    shaderProgram;
-
-  function webGLStart(){
-    console.log("WebGL Start");
-    
-    initGL(canvas);
-    initShaders();
-    initBuffers();
-
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);
-
-    drawScene();    
-  }
-
-  function initGL(canvas){
-    try {
-      gl = canvas.getContext('webgl');
-      gl.viewportWidth = canvas.width;
-      gl.viewportHeight = canvas.height;
-    } catch(e) { console.log(e); }
-    
-    if (!gl)
-      alert("Could not initialise WebGL, sorry.");    
-  }
-  
-  function getShader(gl, id) {
-    var shaderScript = document.getElementById(id);
-    if (!shaderScript)
-        return null;
-
-    var str = "";
-    var k = shaderScript.firstChild;
-    while (k) {
-        if (k.nodeType == 3) {
-            str += k.textContent;
-        }
-        k = k.nextSibling;
-    }
-
-    var shader;
-    switch(shaderScript.type){
-      case "x-shader/x-fragment":
-        shader = gl.createShader(gl.FRAGMENT_SHADER);
-      break;
-      case "x-shader/x-vertex":
-        shader = gl.createShader(gl.VERTEX_SHADER);
-      break;
-      default:
-        return null;
-    }
-
-    gl.shaderSource(shader, str);
-    gl.compileShader(shader);
-
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        alert(gl.getShaderInfoLog(shader));
-        return null;
-    }
-
-    return shader;
-  }
-
-  function initShaders() {
-      var fragmentShader = getShader(gl, "shader-fs"),
-        vertexShader = getShader(gl, "shader-vs");
-
-      shaderProgram = gl.createProgram();
-      gl.attachShader(shaderProgram, vertexShader);
-      gl.attachShader(shaderProgram, fragmentShader);
-      gl.linkProgram(shaderProgram);
-
-      if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS))
-          alert("Could not initialise shaders");
-
-      gl.useProgram(shaderProgram);
-
-      shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-      gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
-      shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-      shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-  }
-  function initBuffers(){
-    // Triangle
-    triangleVertexPositionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-    var vertices = [
-         0.0,  1.0,  0.0,
-        -1.0, -1.0,  0.0,
-         1.0, -1.0,  0.0
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-    triangleVertexPositionBuffer.itemSize = 3;
-    triangleVertexPositionBuffer.numItems = 3;
-
-    //Square
-    squareVertexPositionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
-    vertices = [
-         1.0,  1.0,  0.0,
-        -1.0,  1.0,  0.0,
-         1.0, -1.0,  0.0,
-        -1.0, -1.0,  0.0
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-    squareVertexPositionBuffer.itemSize = 3;
-    squareVertexPositionBuffer.numItems = 4;
-  }
-
-  function setMatrixUniforms() {
-    gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false ,pMatrix);
-    gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false ,mvMatrix);
-  }
-
-  function drawScene(){
-    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    mat4.perspective(pMatrix, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0);
-    mat4.identity(mvMatrix);
-
-    mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, -7.0]);
-    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-    setMatrixUniforms();
-    gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
-
-
-    mat4.translate(mvMatrix, mvMatrix, [3.0, 0.0, 0.0]);
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-    setMatrixUniforms();
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
-
-  }
-
-  webGLStart();
 
   </script>
 </body>
