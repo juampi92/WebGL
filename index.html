@@ -21,11 +21,7 @@
 
       GL.init( document.getElementById('canvas') , 800 , 600 );
 
-      GL.extend('models');
-      GL.extend('animation');
-      GL.extend('shaders');
-      GL.extend('scene');
-      GL.extend('camera');
+      GL.extend(['models','animation','shaders','scene','camera','matrix']);
 
       var camera = new GL.Camera(GL,45),
         scene = new GL.Scene(GL);

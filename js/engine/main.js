@@ -4,6 +4,7 @@ function (glMatrix) {
   var GL_engine = {
 
     gl: null,
+    _installed_modules: [],
 
     glMatrix: glMatrix,
 
@@ -29,9 +30,19 @@ function (glMatrix) {
     },
 
     extend: function(module){
-      // Mixin
       if ( typeof module === 'string' )
-        module = require('engine/modules/'+module);
+        this._extend(module);
+      else
+        for (var m = 0, max_m = module.length; m < max_m; m++)
+          this._extend(module[m]);
+    },
+    _extend: function(module){
+      if ( this._installed_modules.indexOf(module) > 0 ) return;
+
+      // Mixin
+      this._installed_modules.push(module);
+
+      module = require('engine/modules/'+module);
 
       for (var k in module) {
         if (module.hasOwnProperty(k)) {

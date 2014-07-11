@@ -1,15 +1,15 @@
-define(['glMatrix'],
-function (glMatrix) {
+define(['engine/modules/matrix'],
+function () {
 
   var GL;
 
   function Camera(_GL,fov){
     GL = _GL;
     this.fov = (fov)?fov:45;
-    this.matrix = glMatrix.mat4.create();
+    this.matrix = new GL.Matrix('mat4');
   }
   Camera.prototype.calculate = function(near,far) {
-    glMatrix.mat4.perspective(this.matrix, 45, GL.gl.viewportWidth / GL.gl.viewportHeight, near, far);
+    this.matrix.perspective(45, GL.gl.viewportWidth / GL.gl.viewportHeight, near, far);
   };
 
   return {
