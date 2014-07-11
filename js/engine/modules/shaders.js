@@ -54,8 +54,9 @@ define(function () {
 
         GL.gl.useProgram(this.program);
 
-        for (i = 0, max_i = preSet.length; i < max_i; i++)
-          this.set(preSet[i]);
+        if ( preSet )
+          for (i = 0, max_i = preSet.length; i < max_i; i++)
+            this.set(preSet[i]);
       },
       get: function(attr){
         if ( this.attrs[attr] === undefined ) {

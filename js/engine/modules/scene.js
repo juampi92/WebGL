@@ -34,7 +34,7 @@ define(function () {
 
       // Apply matrices in program
       this.setMatrixUniforms();
-      GL.gl.drawArrays(GL.gl.TRIANGLES, 0, mdl.buffer.numItems);
+      GL.gl.drawArrays(mdl.drawMode, 0, mdl.buffer.numItems);
     }
 
   };
@@ -43,7 +43,7 @@ define(function () {
     GL.gl.clear(GL.gl.COLOR_BUFFER_BIT | GL.gl.DEPTH_BUFFER_BIT);
   };
   Scene.prototype.addModel = function(model) {
-    var _model = { model: model , buffer: null , color: null , texture: null };
+    var _model = { model: model , drawMode: 0 , buffer: null , color: null , texture: null };
 
     // Model Structure
     _model.buffer = GL.gl.createBuffer();
@@ -51,6 +51,15 @@ define(function () {
     GL.gl.bufferData(GL.gl.ARRAY_BUFFER, new Float32Array(model.toArray()), GL.gl.STATIC_DRAW);
     _model.buffer.itemSize = model.itemSize();
     _model.buffer.numItems = model.numItems();
+
+    switch(_model.buffer.numItems){
+    case 3:
+      _model.drawMode = GL.gl.TRIANGLES;
+      break;
+    case 4:
+      _model.drawMode = GL.gl.TRIANGLE_STRIP;
+      break;
+    }
 
     // Model color (has color or texture...)
     _model.color = GL.gl.createBuffer();

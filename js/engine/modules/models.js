@@ -28,6 +28,7 @@ define(function () {
   Model.prototype.setPos = function(pos) {
     this.pos = pos;
   };
+  
   Model.prototype.getColors = function() {
     var ret = [];
     for (var i = 0, max_i = this.polygons.length; i < max_i; i++) {
@@ -72,7 +73,8 @@ define(function () {
   // Vertex
   function Vertex(x,y,z,color){
     this.coords = [x,y,z];
-    this.color = color || [];
+    this.color = color || [0,0,0,1];
+    if ( this.color[3] === undefined ) this.color[3] = 1;
   }
   Vertex.prototype.toArray = function() {
     return this.coords;
