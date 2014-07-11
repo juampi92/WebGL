@@ -5,6 +5,7 @@ define(function () {
   return {
     shaders: {
       program: null,
+      attrs: {},
       load: function(name){
           var str = require('text!engine/shaders/' + name + '.shdr'),
             shader,type;
@@ -34,12 +35,12 @@ define(function () {
 
         return shader;
       },
-      initialize: function(_GL,shdrs,variables){
+      initialize: function(_GL,shdrs,preSet){
         GL = _GL;
         this.program = GL.gl.createProgram();
 
         var shaders = [],
-          i;
+          i,max_i;
 
         for (i = 0, max_i = shdrs.length; i < max_i; i++) {
           shaders[i] = this.load(shdrs[i]);
@@ -53,12 +54,27 @@ define(function () {
 
         GL.gl.useProgram(this.program);
 
-        this.program.vertexPositionAttribute = GL.gl.getAttribLocation(this.program, "aVertexPosition");
-        GL.gl.enableVertexAttribArray(this.program.vertexPositionAttribute);
-
-        for (i = 0, max_i = variables.length; i < max_i; i++) {
-          this.program[variables[i]] = GL.gl.getUniformLocation(this.program, variables[i]);
+        for (i = 0, max_i = preSet.length; i < max_i; i++)
+          this.set(preSet[i]);
+      },
+      get: function(attr){
+        if ( this.attrs[attr] === undefined ) {
+          this.set(attr);
         }
+        return this.attrs[attr];
+      },
+      set: function(attr){
+        // Aprovechar practicas
+        switch(attr[0]){
+        case "u":
+          this.attrs[attr] = GL.gl.getUniformLocation(this.program,attr);
+          break;
+        case "a":
+          this.attrs[attr] = GL.gl.getAttribLocation(this.program, attr);
+          GL.gl.enableVertexAttribArray(this.attrs[attr]);
+          break;
+        }
+        return this.attrs[attr];
       }
     }
   };

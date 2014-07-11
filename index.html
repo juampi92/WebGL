@@ -35,20 +35,20 @@
       var triangulo = new GL.Model(),
         polygon = new GL.Polygon();
 
-      polygon.addVertex(new GL.Vertex(0.0,1.0,0.0));
-      polygon.addVertex(new GL.Vertex(-1.0,-1.0,0.0));
-      polygon.addVertex(new GL.Vertex(1.0,-1.0,0.0));
+      polygon.addVertex(new GL.Vertex(0.0,1.0,0.0,[1.0,0.0,0.0,1.0]));
+      polygon.addVertex(new GL.Vertex(-1.0,-1.0,0.0,[0.0,1.0,0.0,1.0]));
+      polygon.addVertex(new GL.Vertex(1.0,-1.0,0.0,[0.0,0.0,1.0,1.0]));
 
       triangulo.addPolygon(polygon);
       triangulo.setPos([-1.5, 0.0, -7.0]);
 
+      console.log(triangulo.getColors());
+
       function start(){
-        GL.shaders.initialize(GL,['shader-fs','shader-vs'],['uPMatrix','uMVMatrix']);
+        GL.shaders.initialize(GL,['shader-fs','shader-vs'],['uPMatrix','uMVMatrix','aVertexPosition','aVertexColor']);
         scene.addModel(triangulo);
 
-        // WTf is this
-        GL.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        GL.gl.enable(GL.gl.DEPTH_TEST);
+        scene.clean();
 
         camera.calculate(0.1,100.0);
 
