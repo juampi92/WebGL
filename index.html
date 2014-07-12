@@ -32,28 +32,29 @@
         polygons = [],
         vertices = [];
 
-      vertices[0] = new GL.Vertex(1.0,1.0,0.0,[1,0,0]);
-      vertices[1] = new GL.Vertex(-1.0,1.0,0.0,[0,1,0]);
-      vertices[2] = new GL.Vertex(1.0,-1.0,0.0,[0,0,1]);
-      vertices[3] = new GL.Vertex(-1.0,-1.0,0.0,[1,0,1]);
+      vertices[0] = new GL.Vertex(1,1,0,[1,0,0]);
+      vertices[1] = new GL.Vertex(1,-1,0,[0,0,1]);
+      vertices[2] = new GL.Vertex(-1,-1,0,[0,1,0]);
 
       polygons[0] = new GL.Polygon();
       polygons[0].addVertex(vertices[0]);
       polygons[0].addVertex(vertices[1]);
       polygons[0].addVertex(vertices[2]);
-      polygons[0].addVertex(vertices[3]);
 
       cuadrado.addPolygon(polygons[0]);
 
-      cuadrado.setPos([-1.5, 0.0, -7.0]);
+      cuadrado.setPos([-1.5, 0, -7]);
 
       function start(){
         GL.shaders.initialize(GL,['shader-fs','shader-vs']);
         scene.addModel(cuadrado);
 
+        cuadrado.apply('translate',[0,0,-1]);
+        cuadrado.apply('rotate',(45 * Math.PI / 180),[0,0,1]);
+
         scene.clean();
 
-        camera.calculate(0.1,100.0);
+        camera.calculate(0.1,100);
 
         scene.draw();
       }

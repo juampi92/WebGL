@@ -8,7 +8,10 @@ function () {
 
     this.camera = null;
     this.models = [];
+    this.matrices = {};
+    
     this.mvMatrix = new GL.Matrix('mat4');
+    this.setUniformMatrix('uMVMatrix',this.mvMatrix);
   }
   Scene.prototype.clean = function(r,g,b) {
     r = r || 0.0; g = g || 0.0; b = b || 0.0;
@@ -19,15 +22,19 @@ function () {
   Scene.prototype.draw = function() {
     this.clear();
 
+    this.mvMatrix.identity();
+
     var mdl;
     for (var m = 0, max_m = this.models.length; m < max_m; m++) {
       mdl = this.models[m];
-
-      this.mvMatrix.identity();
-
-      this.mvMatrix.translate(mdl.model.pos);
       
+      this.mvMatrix.push();
+
+      this.applyModelTransformations(mdl.model);
+      this.mvMatrix.multiply(mdl.model.state);
       this.drawModel(mdl);
+
+      this.mvMatrix.pop();
     }
 
   };
@@ -49,9 +56,14 @@ function () {
     GL.gl.viewport(0, 0, GL.gl.viewportWidth, GL.gl.viewportHeight);
     GL.gl.clear(GL.gl.COLOR_BUFFER_BIT | GL.gl.DEPTH_BUFFER_BIT);
   };
-  
+
+  // Add Model to the Scene.
   Scene.prototype.addModel = function(mdl) {
-    var model = { model: mdl , drawMode: 0 , buffer: null , color: null , texture: null };
+    var model = { model: mdl , drawMode: 0 , buffer: null , color: null , texture: null , childrens: null, parent: null };
+
+    // Model Position
+    GL.glMatrix.mat4.identity(mdl.state);
+    GL.glMatrix.mat4.translate(mdl.state, mdl.state, mdl.startPos);
 
     // Model Structure
     model.buffer = GL.gl.createBuffer();
@@ -78,15 +90,46 @@ function () {
 
     this.models.push(model);
   };
+  Scene.prototype.applyModelTransformations = function(model) {
+    var cursor;
+    for (var i = 0, max_i = model.actions.length; i < max_i; i++) {
+      cursor = model.actions[i];
+      GL.glMatrix.mat4[cursor[0]](model.state,model.state,cursor[1],cursor[2],cursor[3],cursor[4]);
+    }
+    model.actions = [];
+  };
   
   Scene.prototype.setCamera = function(camera) {
     this.camera = camera;
+    this.setUniformMatrix('uPMatrix',this.camera.matrix);
+  };
+  Scene.prototype.getCamera = function() {
+    return this.camera;
+  };
+
+  Scene.prototype.setUniformMatrix = function(shaderVar , matrix ) {
+    var type;
+    switch(matrix.type){
+    case 'mat4':
+      type = 'uniformMatrix4fv';
+      break;
+    case 'mat3':
+      type = 'uniformMatrix3fv';
+      break;
+    }
+
+    this.matrices[shaderVar] = {m:matrix , t:type};
   };
 
 
   Scene.prototype.setMatrixUniforms = function() {
-    GL.gl.uniformMatrix4fv(GL.shaders.get('uPMatrix'), false ,this.camera.matrix.get());
-    GL.gl.uniformMatrix4fv(GL.shaders.get('uMVMatrix'), false ,this.mvMatrix.get());
+    var cursor;
+    for(var shaderVar in this.matrices) {
+      if(this.matrices.hasOwnProperty(shaderVar)) {
+        cursor = this.matrices[shaderVar];
+        GL.gl[cursor.t](GL.shaders.get(shaderVar),false,cursor.m.get());
+      }
+    }
   };
 
   return {

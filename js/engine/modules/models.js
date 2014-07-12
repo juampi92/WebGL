@@ -3,7 +3,11 @@ define(function () {
   // Model
   function Model(){
     this.polygons = [];
-    this.pos = [];
+    
+    this.startPos = []; // Ubicación inicial del objeto (no necesario en el futuro en realidad)
+
+    this.state = []; // Current position of the model in the screen
+    this.actions = []; // Actions to apply to the state before it's drawn.
   }
   Model.prototype.addPolygon = function(polygon){
     this.polygons.push(polygon);
@@ -26,7 +30,7 @@ define(function () {
     return ret;
   };
   Model.prototype.setPos = function(pos) {
-    this.pos = pos;
+    this.startPos = pos;
   };
   
   Model.prototype.getColors = function() {
@@ -35,6 +39,9 @@ define(function () {
       ret = ret.concat(this.polygons[i].getColor());
     }
     return ret;
+  };
+  Model.prototype.apply = function(action,a,b,c,d) {
+    this.actions.push([action,a,b,c,d]);
   };
 
 
