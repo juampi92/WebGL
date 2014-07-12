@@ -72,7 +72,7 @@ function () {
     model.buffer.itemSize = mdl.itemSize();
     model.buffer.numItems = mdl.numItems();
 
-    switch(model.buffer.numItems){
+    switch(mdl.polygonSize()){
     case 3:
       model.drawMode = GL.gl.TRIANGLES;
       break;
@@ -117,7 +117,6 @@ function () {
       type = 'uniformMatrix3fv';
       break;
     }
-
     this.matrices[shaderVar] = {m:matrix , t:type};
   };
 

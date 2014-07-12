@@ -28,31 +28,54 @@
 
       scene.setCamera(camera);
 
-      var cuadrado = new GL.Model(),
+      var pyramid = new GL.Model(),
         polygons = [],
         vertices = [];
 
-      vertices[0] = new GL.Vertex(1,1,0,[1,0,0]);
-      vertices[1] = new GL.Vertex(1,-1,0,[0,0,1]);
-      vertices[2] = new GL.Vertex(-1,-1,0,[0,1,0]);
+      vertices[0] = new GL.Vertex(   0.0,   1.0,  0.0,  [1,0,0]);
+      vertices[1] = new GL.Vertex(  -1.0,  -1.0,  1.0,  [0,1,0]);
+      vertices[2] = new GL.Vertex(   1.0,  -1.0,  1.0,  [0,0,1]);
+      vertices[3] = new GL.Vertex(   1.0,  -1.0, -1.0,  [1,0,1]);
+      vertices[4] = new GL.Vertex(  -1.0,  -1.0, -1.0,  [1,0,0]);
 
+      // Front Face
       polygons[0] = new GL.Polygon();
       polygons[0].addVertex(vertices[0]);
       polygons[0].addVertex(vertices[1]);
       polygons[0].addVertex(vertices[2]);
+      pyramid.addPolygon(polygons[0]);
 
-      cuadrado.addPolygon(polygons[0]);
+      // Right Face
+      polygons[1] = new GL.Polygon();
+      polygons[1].addVertex(vertices[0]);
+      polygons[1].addVertex(vertices[2]);
+      polygons[1].addVertex(vertices[3]);
+      pyramid.addPolygon(polygons[1])
 
-      cuadrado.setPos([-1.5, 0, -7]);
+      // Back Face
+      polygons[2] = new GL.Polygon();
+      polygons[2].addVertex(vertices[0]);
+      polygons[2].addVertex(vertices[3]);
+      polygons[2].addVertex(vertices[4]);
+      pyramid.addPolygon(polygons[2])
+
+      // Left Face
+      polygons[3] = new GL.Polygon();
+      polygons[3].addVertex(vertices[0]);
+      polygons[3].addVertex(vertices[4]);
+      polygons[3].addVertex(vertices[1]);
+      pyramid.addPolygon(polygons[3]);
+     
+
+      pyramid.setPos([-1.5, 0, -7]);
 
       function start(){
         GL.shaders.initialize(GL,['shader-fs','shader-vs']);
-        scene.addModel(cuadrado);
+        scene.addModel(pyramid);
 
-        cuadrado.apply('translate',[0,0,-1]);
-        cuadrado.apply('rotate',(45 * Math.PI / 180),[0,0,1]);
+        //pyramid.apply('rotate',(45* Math.PI/180),[1,1,0]);
 
-        scene.clean();
+        scene.clean(0.2,0.2,0.4);
 
         camera.calculate(0.1,100);
 

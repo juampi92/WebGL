@@ -22,6 +22,9 @@ define(function () {
   Model.prototype.itemSize = function() {
     return this.polygons[0].vertices[0].coords.length;
   };
+  Model.prototype.polygonSize = function() {
+    return this.polygons[0].vertices.length;
+  };
   Model.prototype.toArray = function() {
     var ret = [];
     for (var i = 0, max_i = this.polygons.length; i < max_i; i++) {
