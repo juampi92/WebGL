@@ -22,7 +22,7 @@ define(function () {
             shader = GL.gl.createShader(GL.gl.VERTEX_SHADER);
           break;
           default:
-            return null;
+            throw "Shaders load unkown type";
         }
 
         GL.gl.shaderSource(shader,str);

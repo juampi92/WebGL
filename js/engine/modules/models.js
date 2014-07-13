@@ -25,6 +25,9 @@ define(function () {
   Model.prototype.polygonSize = function() {
     return this.polygons[0].vertices.length;
   };
+  Model.prototype.polygonsSize = function() {
+    return this.polygons.length;
+  };
   Model.prototype.toArray = function() {
     var ret = [];
     for (var i = 0, max_i = this.polygons.length; i < max_i; i++) {
@@ -52,6 +55,7 @@ define(function () {
   function Polygon(type){
     this.type = type;
     this.vertices = [];
+    this.color = null;
   }
   Polygon.prototype.addVertex = function(v) {
     this.vertices.push(v);
@@ -68,14 +72,19 @@ define(function () {
   };
   Polygon.prototype.setColor = function(r,g,b,a) {
     a = (a !== undefined)? a : 1.0;
-    for (var i = 0, max_i = this.vertices.length; i < max_i; i++)
-      this.vertices[i].setColor(r,g,b,a);
+    this.color = [r,g,b,a];
   };
   Polygon.prototype.getColor = function() {
-    var ret = [];
-    for (var i = 0, max_i = this.vertices.length; i < max_i; i++) {
-      ret = ret.concat(this.vertices[i].getColor());
-    }
+    var ret = [],
+      i,max_i;
+    if ( !this.color )
+      for (i = 0, max_i = this.vertices.length; i < max_i; i++) {
+        ret = ret.concat(this.vertices[i].getColor());
+      }
+    else
+      for (i = 0, max_i = this.vertices.length; i < max_i; i++) {
+        ret = ret.concat(this.color);
+      }
     return ret;
   };
 

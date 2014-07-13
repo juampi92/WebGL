@@ -48,8 +48,14 @@ function () {
     GL.gl.vertexAttribPointer(GL.shaders.get('aVertexColor'), mdl.color.itemSize, GL.gl.FLOAT, false, 0, 0);
 
     // Apply matrices in program
-    this.setMatrixUniforms();
-    GL.gl.drawArrays(mdl.drawMode, 0, mdl.buffer.numItems);
+    if ( mdl.index ) {
+      GL.gl.bindBuffer(GL.gl.ELEMENT_ARRAY_BUFFER, mdl.index); // WARNING
+      this.setMatrixUniforms();
+      GL.gl.drawElements(GL.gl.TRIANGLES, mdl.index.numItems, GL.gl.UNSIGNED_SHORT, 0);
+    } else {
+      this.setMatrixUniforms();
+      GL.gl.drawArrays(mdl.drawMode, 0, mdl.buffer.numItems);
+    }
   };
   
   Scene.prototype.clear = function() {
@@ -59,7 +65,7 @@ function () {
 
   // Add Model to the Scene.
   Scene.prototype.addModel = function(mdl) {
-    var model = { model: mdl , drawMode: 0 , buffer: null , color: null , texture: null , childrens: null, parent: null };
+    var model = { model: mdl , drawMode: 0 , buffer: null , color: null , texture: null , childrens: null, parent: null, index: null };
 
     // Model Position
     GL.glMatrix.mat4.identity(mdl.state);
@@ -79,6 +85,8 @@ function () {
     case 4:
       model.drawMode = GL.gl.TRIANGLE_STRIP;
       break;
+    default:
+      throw "Scene addModel unknown drawMode";
     }
 
     // Model color (has color or texture...)
@@ -87,6 +95,20 @@ function () {
     GL.gl.bufferData(GL.gl.ARRAY_BUFFER, new Float32Array(mdl.getColors()), GL.gl.STATIC_DRAW);
     model.color.itemSize = 4;
     model.color.numItems = model.buffer.numItems;
+
+    // Index
+    if ( mdl.polygonSize() > 3 && mdl.polygonsSize() > 1 ){
+      model.index = GL.gl.createBuffer();
+      GL.gl.bindBuffer(GL.gl.ELEMENT_ARRAY_BUFFER, model.index);
+      var cubeVertexIndices = [];
+      for (var i = 0, max_i = mdl.polygonsSize() * mdl.polygonSize(); i < max_i; i += mdl.polygonSize() ) {
+        cubeVertexIndices = cubeVertexIndices.concat([i,i+1,i+2,i,i+2,i+3]);
+      }
+      console.log(cubeVertexIndices);
+      GL.gl.bufferData(GL.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), GL.gl.STATIC_DRAW);
+      model.index.itemSize = 1;
+      model.index.numItems = 36;
+    }
 
     this.models.push(model);
   };
@@ -116,6 +138,8 @@ function () {
     case 'mat3':
       type = 'uniformMatrix3fv';
       break;
+    default:
+      throw "Scene setUniformMatrix unknown type";
     }
     this.matrices[shaderVar] = {m:matrix , t:type};
   };
