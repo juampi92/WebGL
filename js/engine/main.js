@@ -44,6 +44,8 @@ function (glMatrix) {
 
       module = require('engine/modules/'+module);
 
+      if ( module.init ) { module.init(this); delete module.init;}
+
       for (var k in module) {
         if (module.hasOwnProperty(k)) {
           this[k] = module[k];

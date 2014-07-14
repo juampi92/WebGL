@@ -14,101 +14,43 @@
   <script type="text/javascript">
     GL_loader({
       app: [],
-      modules: [ 'models', 'animation', 'shaders', 'camera', 'scene','matrix','textures' ],
+      plugins: [ 'animation' ],
+      modules: [ 'models', 'shaders', 'camera', 'scene','matrix','textures','shape' ],
       shaders: [ 'shader-txtr-fs' , 'shader-txtr-vs' ]
     },
-    function (GL){
+    function (GL,animation){
 
       GL.init( document.getElementById('canvas') , 800 , 600 );
 
-      GL.extend(['models','textures','animation','shaders','scene','camera','matrix']);
+      GL.extend(['models','textures','shaders','scene','camera','matrix','shape']);
 
-      var camera = new GL.Camera(GL,45),
-        scene = new GL.Scene(GL);
+      var camera = new GL.Camera(45),
+        scene = new GL.Scene();
 
+      // Camera
       scene.setCamera(camera);
+      camera.calculate(0.1,100);
 
-      GL.shaders.initialize(GL,['shader-txtr-fs','shader-txtr-vs']);
+      // Shaders
+      GL.shaders.initialize(['shader-txtr-fs','shader-txtr-vs']);
 
-      GL.textures.initialize(GL,'js/app/textures');
-      GL.textures.load(['woodceiling1a.jpg']);
+      // Textures
+      GL.textures.initialize('js/app/textures');
+      GL.textures.load(['woodceiling1a.jpg','nehe.gif']);
+      //GL.textures.loader.oneachload = function(name,current,total){console.log(name,current,total);};
 
-      var cubo = new GL.Model(),
-        polygons = [],
-        vertices = [];
-
-      vertices[0] = new GL.Vertex(  -1,  -1,  1,  [0,0,0]);
-      vertices[1] = new GL.Vertex(   1,  -1,  1,  [0,1,0]);
-      vertices[2] = new GL.Vertex(   1,   1,  1,  [0,0,1]);
-      vertices[3] = new GL.Vertex(  -1,   1,  1,  [0,0,1]);
-      vertices[4] = new GL.Vertex(  -1,  -1, -1,  [0,0,0]);
-      vertices[5] = new GL.Vertex(  -1,   1, -1,  [0,1,0]);
-      vertices[6] = new GL.Vertex(   1,   1, -1,  [0,0,1]);
-      vertices[7] = new GL.Vertex(   1,  -1, -1,  [0,0,1]);
-
-      // Front Face
-      polygons[0] = new GL.Polygon();
-      polygons[0].addVertex(vertices[0]);
-      polygons[0].addVertex(vertices[1]);
-      polygons[0].addVertex(vertices[2]);
-      polygons[0].addVertex(vertices[3]);
-      cubo.addPolygon(polygons[0]);
-
-      // Back Face
-      polygons[1] = new GL.Polygon();
-      polygons[1].addVertex(vertices[4]);
-      polygons[1].addVertex(vertices[5]);
-      polygons[1].addVertex(vertices[6]);
-      polygons[1].addVertex(vertices[7]);
-      cubo.addPolygon(polygons[1]);
-
-      // Top Face
-      polygons[2] = new GL.Polygon();
-      polygons[2].addVertex(vertices[5]);
-      polygons[2].addVertex(vertices[3]);
-      polygons[2].addVertex(vertices[2]);
-      polygons[2].addVertex(vertices[6]);
-      cubo.addPolygon(polygons[2]);
-
-      // Bottom Face
-      polygons[3] = new GL.Polygon();
-      polygons[3].addVertex(vertices[4]);
-      polygons[3].addVertex(vertices[7]);
-      polygons[3].addVertex(vertices[1]);
-      polygons[3].addVertex(vertices[0]);
-      cubo.addPolygon(polygons[3]);
-
-      // Right Face
-      polygons[4] = new GL.Polygon();
-      polygons[4].addVertex(vertices[7]);
-      polygons[4].addVertex(vertices[6]);
-      polygons[4].addVertex(vertices[2]);
-      polygons[4].addVertex(vertices[1]);
-      cubo.addPolygon(polygons[4]);
-
-      // Left Face
-      polygons[5] = new GL.Polygon();
-      polygons[5].addVertex(vertices[4]);
-      polygons[5].addVertex(vertices[0]);
-      polygons[5].addVertex(vertices[3]);
-      polygons[5].addVertex(vertices[5]);
-      cubo.addPolygon(polygons[5]);
-     
-      cubo.setPos([-1.5, 0, -7]);
-
+      // Crear objeto
+      var cubo = GL.shape.Box(1);
+      cubo.setPos([0, 0, -7]);
       scene.addModel(cubo);
       cubo.apply('rotate',(45* Math.PI/180),[1,1,0]);
-      
+
       function start(){
-
-
-        scene.clean(0.2,0.2,0.4);
-
-        camera.calculate(0.1,100);
+        scene.clean(0.5,0.5,1);      
 
         scene.draw();
       }
-      GL.textures.loader.onload = start;
+      GL.textures.loader.onload = start; // Dibujar cuando se carguen las texturas
       
     });
   </script>

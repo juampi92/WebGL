@@ -3,6 +3,7 @@ define(function () {
   var GL;
 
   return {
+    init: function(_GL){GL = _GL;},
     shaders: {
       program: null,
       attrs: {},
@@ -35,8 +36,7 @@ define(function () {
 
         return shader;
       },
-      initialize: function(_GL,shdrs,preSet){
-        GL = _GL;
+      initialize: function(shdrs,preSet){
         this.program = GL.gl.createProgram();
 
         var shaders = [],

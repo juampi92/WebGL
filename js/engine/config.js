@@ -19,6 +19,9 @@ function GL_loader(deps,callback){
   for (i = 0, max_i = deps.app.length; i < max_i; i++)
     _deps.push(deps.app[i]);
 
+  for (i = 0, max_i = deps.plugins.length; i < max_i; i++)
+    _deps.push('plugins/' + deps.plugins[i]);
+
   for (i = 0, max_i = deps.modules.length; i < max_i; i++)
     _deps.push('engine/modules/' + deps.modules[i]);
 

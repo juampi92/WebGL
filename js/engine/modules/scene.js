@@ -3,8 +3,7 @@ function () {
 
   var GL,mat4,privates = {};
 
-  function Scene(_GL){
-    GL = _GL;
+  function Scene(){
 
     this.camera = null;
     this.models = [];
@@ -182,6 +181,7 @@ function () {
   
   Scene.prototype.setCamera = function(camera) {
     this.camera = camera;
+    this.camera.setScene(this);
     this.setUniformMatrix('uPMatrix',this.camera.matrix);
   };
   Scene.prototype.getCamera = function() {
@@ -214,6 +214,7 @@ function () {
   };
 
   return {
+    init: function(_GL){GL = _GL;},
     Scene: Scene
   };
 });

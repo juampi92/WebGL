@@ -28,13 +28,12 @@ define(function () {
       getCurrent: function(){return current;}
     },
     load: function(array){
-      this.loader.total += array.length;
+      total += array.length;
       for (var i = 0, max_i = array.length; i < max_i; i++) {
         this.map[array[i]] = new Texture(array[i]);
       }
     },
-    initialize: function(_GL,_parent){
-      GL = _GL;
+    initialize: function(_parent){
       parent = _parent || '';
     },
     get: function(name){
@@ -66,6 +65,7 @@ define(function () {
   };
 
   return {
+    init: function(_GL){GL = _GL;},
     textures: textures
   };
 });
