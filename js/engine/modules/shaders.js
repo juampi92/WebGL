@@ -58,10 +58,12 @@ define(function () {
           for (i = 0, max_i = preSet.length; i < max_i; i++)
             this.set(preSet[i]);
       },
+      has: function(attr){
+        return (this.get(attr) != -1);
+      },
       get: function(attr){
-        if ( this.attrs[attr] === undefined ) {
-          this.set(attr);
-        }
+        if ( this.attrs[attr] === undefined )
+          return this.set(attr);
         return this.attrs[attr];
       },
       set: function(attr){
@@ -72,6 +74,7 @@ define(function () {
           break;
         case "a":
           this.attrs[attr] = GL.gl.getAttribLocation(this.program, attr);
+          if ( this.attrs[attr] === -1 ) return -1;
           GL.gl.enableVertexAttribArray(this.attrs[attr]);
           break;
         }

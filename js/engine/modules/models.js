@@ -8,6 +8,8 @@ define(function () {
 
     this.state = []; // Current position of the model in the screen
     this.actions = []; // Actions to apply to the state before it's drawn.
+
+    this._hasTexture = null;
   }
   Model.prototype.addPolygon = function(polygon){
     this.polygons.push(polygon);
@@ -49,6 +51,15 @@ define(function () {
   Model.prototype.apply = function(action,a,b,c,d) {
     this.actions.push([action,a,b,c,d]);
   };
+  Model.prototype.hasTexture = function() {
+    if ( this._hasTexture === null ) {
+      for (var i = 0, max_i = this.polygons.length; i < max_i && !this._hasTexture; i++)
+        if ( this.polygons[i].texture !== null ) this._hasTexture = true;
+
+      if ( this._hasTexture === null ) this._hasTexture = false;
+    }
+    return this._hasTexture;
+  };
 
 
   // Polygon
@@ -56,6 +67,7 @@ define(function () {
     this.type = type;
     this.vertices = [];
     this.color = null;
+    this.texture = null;
   }
   Polygon.prototype.addVertex = function(v) {
     this.vertices.push(v);
@@ -86,6 +98,12 @@ define(function () {
         ret = ret.concat(this.color);
       }
     return ret;
+  };
+  Polygon.prototype.setTexture = function(textur) {
+    this.texture = textur;
+  };
+  Polygon.prototype.getTexture = function() {
+    return this.texture;
   };
 
 

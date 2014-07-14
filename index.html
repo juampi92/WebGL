@@ -14,19 +14,24 @@
   <script type="text/javascript">
     GL_loader({
       app: [],
-      modules: [ 'models', 'animation', 'shaders', 'camera', 'scene' ],
-      shaders: [ 'shader-fs' , 'shader-vs' ]
+      modules: [ 'models', 'animation', 'shaders', 'camera', 'scene','matrix','textures' ],
+      shaders: [ 'shader-txtr-fs' , 'shader-txtr-vs' ]
     },
     function (GL){
 
       GL.init( document.getElementById('canvas') , 800 , 600 );
 
-      GL.extend(['models','animation','shaders','scene','camera','matrix']);
+      GL.extend(['models','textures','animation','shaders','scene','camera','matrix']);
 
       var camera = new GL.Camera(GL,45),
         scene = new GL.Scene(GL);
 
       scene.setCamera(camera);
+
+      GL.shaders.initialize(GL,['shader-txtr-fs','shader-txtr-vs']);
+
+      GL.textures.initialize(GL,'js/app/textures');
+      GL.textures.load(['woodceiling1a.jpg']);
 
       var cubo = new GL.Model(),
         polygons = [],
@@ -47,7 +52,6 @@
       polygons[0].addVertex(vertices[1]);
       polygons[0].addVertex(vertices[2]);
       polygons[0].addVertex(vertices[3]);
-      polygons[0].setColor(1,0,0);
       cubo.addPolygon(polygons[0]);
 
       // Back Face
@@ -89,15 +93,14 @@
       polygons[5].addVertex(vertices[3]);
       polygons[5].addVertex(vertices[5]);
       cubo.addPolygon(polygons[5]);
-
      
       cubo.setPos([-1.5, 0, -7]);
 
+      scene.addModel(cubo);
+      cubo.apply('rotate',(45* Math.PI/180),[1,1,0]);
+      
       function start(){
-        GL.shaders.initialize(GL,['shader-fs','shader-vs']);
-        scene.addModel(cubo);
 
-        cubo.apply('rotate',(45* Math.PI/180),[1,1,0]);
 
         scene.clean(0.2,0.2,0.4);
 
@@ -105,7 +108,7 @@
 
         scene.draw();
       }
-      start();
+      GL.textures.loader.onload = start;
       
     });
   </script>
