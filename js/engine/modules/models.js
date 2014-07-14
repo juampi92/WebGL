@@ -1,18 +1,24 @@
 define(function () {
 
-  // Model
+  // ------------- Model --------------
   function Model(){
     this.polygons = [];
-    
-    this.startPos = []; // Ubicación inicial del objeto (no necesario en el futuro en realidad)
-
-    this.state = []; // Current position of the model in the screen
-    this.actions = []; // Actions to apply to the state before it's drawn.
 
     this._hasTexture = null;
+
+    this.coords = [0,0,0];
+    this.rotation = [0,0,0];
+    this.state = [];
+    this._lastAction = false;
   }
   Model.prototype.addPolygon = function(polygon){
     this.polygons.push(polygon);
+  };
+  Model.prototype.polygonSize = function() {
+    return this.polygons[0].vertices.length;
+  };
+  Model.prototype.polygonsSize = function() {
+    return this.polygons.length;
   };
   Model.prototype.numItems = function() {
     var ret = 0;
@@ -24,12 +30,7 @@ define(function () {
   Model.prototype.itemSize = function() {
     return this.polygons[0].vertices[0].coords.length;
   };
-  Model.prototype.polygonSize = function() {
-    return this.polygons[0].vertices.length;
-  };
-  Model.prototype.polygonsSize = function() {
-    return this.polygons.length;
-  };
+
   Model.prototype.toArray = function() {
     var ret = [];
     for (var i = 0, max_i = this.polygons.length; i < max_i; i++) {
@@ -37,10 +38,39 @@ define(function () {
     }
     return ret;
   };
-  Model.prototype.setPos = function(pos) {
-    this.startPos = pos;
+
+
+  // Position rules
+  Model.prototype.move = function(pos) {
+    this.coords[0] += pos[0];
+    this.coords[1] += pos[1];
+    this.coords[2] += pos[2];
+    this._lastAction = true;
+  };
+  Model.prototype.rotate = function(axis) {
+    this.rotation[0] += axis[0];
+    this.rotation[1] += axis[1];
+    this.rotation[2] += axis[2];
+    this._lastAction = true;
+  };
+  Model.prototype.getX = function() { return this.coords[0]; };
+  Model.prototype.getY = function() { return this.coords[1]; };
+  Model.prototype.getZ = function() { return this.coords[2]; };
+
+  Model.prototype.getRotX = function() { return this.rotation[0]; };
+  Model.prototype.getRotY = function() { return this.rotation[1]; };
+  Model.prototype.getRotZ = function() { return this.rotation[2]; };
+
+  Model.prototype.posRestart = function() {
+    this.coords = [0,0,0];
+    this.rotation = [0,0,0];
+    this.state = [];
+    this._lastAction = true;
   };
   
+  
+  // Colors
+
   Model.prototype.getColors = function() {
     var ret = [];
     for (var i = 0, max_i = this.polygons.length; i < max_i; i++) {
@@ -48,21 +78,17 @@ define(function () {
     }
     return ret;
   };
-  Model.prototype.apply = function(action,a,b,c,d) {
-    this.actions.push([action,a,b,c,d]);
-  };
   Model.prototype.hasTexture = function() {
     if ( this._hasTexture === null ) {
       for (var i = 0, max_i = this.polygons.length; i < max_i && !this._hasTexture; i++)
         if ( this.polygons[i].texture !== null ) this._hasTexture = true;
-
       if ( this._hasTexture === null ) this._hasTexture = false;
     }
     return this._hasTexture;
   };
 
 
-  // Polygon
+  // ------------- Polygon --------------
   function Polygon(type){
     this.type = type;
     this.vertices = [];
@@ -107,7 +133,7 @@ define(function () {
   };
 
 
-  // Vertex
+  // ------------- Vertex --------------
   function Vertex(x,y,z,color){
     this.coords = [x,y,z];
     this.color = color || [0,0,0,1];
@@ -124,6 +150,7 @@ define(function () {
     return this.color;
   };
 
+  // ------------- exports --------------
   return {
     models: [],
     Model: Model,

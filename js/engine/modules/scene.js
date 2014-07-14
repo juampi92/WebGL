@@ -27,10 +27,6 @@ function () {
   Scene.prototype.addModel = function(mdl) {
     var model = { model: mdl , drawMode: 0 , buffer: null , color: null , texture: null , childrens: null, parent: null, index: null };
 
-    // Model Position
-    GL.glMatrix.mat4.identity(mdl.state);
-    GL.glMatrix.mat4.translate(mdl.state, mdl.state, mdl.startPos);
-
     // Model Structure
     model.buffer = GL.gl.createBuffer();
     GL.gl.bindBuffer(GL.gl.ARRAY_BUFFER, model.buffer);
@@ -126,6 +122,8 @@ function () {
 
     this.mvMatrix.identity();
 
+    this.updateCamera();
+
     var mdl;
     for (var m = 0, max_m = this.models.length; m < max_m; m++) {
       mdl = this.models[m];
@@ -171,21 +169,33 @@ function () {
   };
 
   Scene.prototype.applyModelTransformations = function(model) {
-    var cursor;
-    for (var i = 0, max_i = model.actions.length; i < max_i; i++) {
-      cursor = model.actions[i];
-      GL.glMatrix.mat4[cursor[0]](model.state,model.state,cursor[1],cursor[2],cursor[3],cursor[4]);
+    if ( model._lastAction ) {
+      GL.glMatrix.mat4.identity(model.state);
+
+      GL.glMatrix.mat4.translate(model.state,model.state,model.coords);
+      if ( model.rotation[0] !== 0 ) GL.glMatrix.mat4.rotate(model.state,model.state,GL.glMatrix.glMatrix.toRadian(model.rotation[0]),[1,0,0]);
+      if ( model.rotation[1] !== 0 ) GL.glMatrix.mat4.rotate(model.state,model.state,GL.glMatrix.glMatrix.toRadian(model.rotation[1]),[0,1,0]);
+      if ( model.rotation[2] !== 0 ) GL.glMatrix.mat4.rotate(model.state,model.state,GL.glMatrix.glMatrix.toRadian(model.rotation[2]),[0,0,1]);
+
+      model._lastAction = false;
     }
-    model.actions = [];
   };
   
   Scene.prototype.setCamera = function(camera) {
     this.camera = camera;
-    this.camera.setScene(this);
+    //this.camera.setScene(this);
+    GL.glMatrix.mat4.identity(camera.state);
+
     this.setUniformMatrix('uPMatrix',this.camera.matrix);
   };
   Scene.prototype.getCamera = function() {
     return this.camera;
+  };
+  Scene.prototype.updateCamera = function() {
+    this.applyModelTransformations(this.camera);
+    GL.glMatrix.mat4.invert(this.camera.state,this.camera.state);
+
+    this.mvMatrix.multiply(this.camera.state);
   };
 
   Scene.prototype.setUniformMatrix = function(shaderVar , matrix ) {

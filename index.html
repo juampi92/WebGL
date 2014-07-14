@@ -20,7 +20,7 @@
     },
     function (GL,animation){
 
-      GL.init( document.getElementById('canvas') , 800 , 600 );
+      GL.init( document.getElementById('canvas') , 1200 , 600 );
 
       GL.extend(['models','textures','shaders','scene','camera','matrix','shape']);
 
@@ -41,16 +41,62 @@
 
       // Crear objeto
       var cubo = GL.shape.Box(1);
-      cubo.setPos([0, 0, -7]);
+      cubo.move([0, 0, -7]);
+      cubo.move([1,0,0]);
+      cubo.rotate([45,45,0]);
       scene.addModel(cubo);
-      cubo.apply('rotate',(45* Math.PI/180),[1,1,0]);
+
+      var cubo2 = GL.shape.Box(0.7);
+      cubo2.move([0, 0, -9]);
+      cubo2.move([-1,0,0]);
+      cubo2.rotate([0,45,0]);
+      scene.addModel(cubo2);
 
       function start(){
         scene.clean(0.5,0.5,1);      
 
+        window.onkeydown = move;
+
         scene.draw();
       }
       GL.textures.loader.onload = start; // Dibujar cuando se carguen las texturas
+
+      function move(e){
+        switch(e.keyCode){
+        case 37:
+          camera.rotate([0,1]);
+          scene.draw();
+          break;
+        case 39:
+          camera.rotate([0,-1]);
+          scene.draw();
+          break;
+        case 38:
+          camera.rotate([-1,0]);
+          scene.draw();
+          break;
+        case 40:
+          camera.rotate([1,0]);
+          scene.draw();
+          break;
+        case 87: // W
+          camera.move([0,0,-1]);
+          scene.draw();
+          break;
+        case 65: // A
+          camera.move([-1,0]);
+          scene.draw();
+          break;
+        case 83: // S
+          camera.move([0,0,1]);
+          scene.draw();
+          break;
+        case 68: // D
+          camera.move([1,0]);
+          scene.draw();
+          break;
+        }
+      }
       
     });
   </script>
